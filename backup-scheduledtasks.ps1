@@ -95,35 +95,35 @@ if (Test-Path -Path $PowerShellObject.Optional.logsDirectory -PathType Container
 if ($PowerShellObject.Optional.daysToKeepLogFiles) {
     try {
         $intDaysToKeepLogFiles = $PowerShellObject.Optional.daysToKeepLogFiles
-        Out-GVLogFile -LogFileObject $objDetailLogFile -WriteToLog $true -LogString "$(get-date) Info: Using $($PowerShellObject.Optional.daysToKeepLogFiles) value specified in config file for log retention" -LogType "Info" -DisplayInConsole $false
+        Out-GVLogFile -LogFileObject $objDetailLogFile -WriteToLog $true -LogString "Using $($PowerShellObject.Optional.daysToKeepLogFiles) value specified in config file for log retention" -LogType "Info" -DisplayInConsole $false
     } catch {
-        Out-GVLogFile -LogFileObject $objDetailLogFile -WriteToLog $true -LogString "$(get-date) Warning: $($PowerShellObject.Optional.daysToKeepLogFiles) value specified in config file is not valid, defaulting to unlimited log retention" -LogType "Warning"
+        Out-GVLogFile -LogFileObject $objDetailLogFile -WriteToLog $true -LogString "$($PowerShellObject.Optional.daysToKeepLogFiles) value specified in config file is not valid, defaulting to unlimited log retention" -LogType "Warning"
     }
 }
 
-Out-GVLogFile -LogFileObject $objDetailLogFile -WriteToLog $true -LogString "$(get-date) Info: Beginning process to backup all scheduled tasks in the $($ScheduledTaskPath) path to $($strLocalDirectory)" -LogType "Info"
+Out-GVLogFile -LogFileObject $objDetailLogFile -WriteToLog $true -LogString "Beginning process to backup all scheduled tasks in the $($ScheduledTaskPath) path to $($strLocalDirectory)" -LogType "Info"
 
-Out-GVLogFile -LogFileObject $objDetailLogFile -WriteToLog $true -LogString "$(get-date) Info: Getting all tasks in task path" -LogType "Info"
+Out-GVLogFile -LogFileObject $objDetailLogFile -WriteToLog $true -LogString "Getting all tasks in task path" -LogType "Info"
 try {
     $objScheduledTasks = Get-ScheduledTask -TaskPath $ScheduledTaskPath -ErrorAction Stop
-    Out-GVLogFile -LogFileObject $objDetailLogFile -WriteToLog $true -LogString "$(get-date) Info: Successfully obtained all tasks in taskpath.  Obtained $($objScheduledTasks.count) tasks" -LogType "Info"
-    Out-GVLogFile -LogFileObject $objDetailLogFile -WriteToLog $true -LogString "$(get-date) Info: Looping through each task and exporting to file with taskname in file name" -LogType "Info"
+    Out-GVLogFile -LogFileObject $objDetailLogFile -WriteToLog $true -LogString "Successfully obtained all tasks in taskpath.  Obtained $($objScheduledTasks.count) tasks" -LogType "Info"
+    Out-GVLogFile -LogFileObject $objDetailLogFile -WriteToLog $true -LogString "Looping through each task and exporting to file with taskname in file name" -LogType "Info"
 	foreach ($objScheduledTask in $objScheduledTasks) {
-        Out-GVLogFile -LogFileObject $objDetailLogFile -WriteToLog $true -LogString "$(get-date) Info: Exporting $($objScheduledTask.TaskName)" -LogType "Info"
+        Out-GVLogFile -LogFileObject $objDetailLogFile -WriteToLog $true -LogString "Exporting $($objScheduledTask.TaskName)" -LogType "Info"
 		Export-ScheduledTask -TaskName $objScheduledTask.TaskName -TaskPath $objScheduledTask.TaskPath | Out-File "$($LocalBackupDirectory)\$($objScheduledTask.TaskName).xml"
 	}
-    Out-GVLogFile -LogFileObject $objDetailLogFile -WriteToLog $true -LogString "$(get-date) Info: Successfully exported all tasks in taskpath" -LogType "Info"
+    Out-GVLogFile -LogFileObject $objDetailLogFile -WriteToLog $true -LogString "Successfully exported all tasks in taskpath" -LogType "Info"
 } catch {
     $ErrorMessage = $_.Exception.Message
 	$line = $_.InvocationInfo.ScriptLineNumber
 	$arrStrErrors += "Failed to export all scheduled tasks in the $($ScheduledTaskPath) path to $($strLocalDirectory) at $($line) with the following error: $ErrorMessage"
-    Out-GVLogFile -LogFileObject $objDetailLogFile -WriteToLog $true -LogString "$(get-date) Error: Error: Failed to export all scheduled tasks in the $($ScheduledTaskPath) path to $($strLocalDirectory) at $($line) with the following error: $ErrorMessage" -LogType "Error"
+    Out-GVLogFile -LogFileObject $objDetailLogFile -WriteToLog $true -LogString "Failed to export all scheduled tasks in the $($ScheduledTaskPath) path to $($strLocalDirectory) at $($line) with the following error: $ErrorMessage" -LogType "Error"
 }
 
 #log retention
 if ($intDaysToKeepLogFiles -gt 0) {
     try {
-        Out-GVLogFile -LogFileObject $objDetailLogFile -WriteToLog $blnWriteToLog -LogString "$(get-date) Info: Purging log files older than $($intDaysToKeepLogFiles) days from $($PowerShellObject.Optional.logsDirectory)" -LogType "Info"
+        Out-GVLogFile -LogFileObject $objDetailLogFile -WriteToLog $blnWriteToLog -LogString "Purging log files older than $($intDaysToKeepLogFiles) days from $($PowerShellObject.Optional.logsDirectory)" -LogType "Info"
         $CurrentDate = Get-Date
         $DatetoDelete = $CurrentDate.AddDays("-$($intDaysToKeepLogFiles)")
         Get-ChildItem "$($PowerShellObject.Optional.logsDirectory)" | Where-Object { $_.LastWriteTime -lt $DatetoDelete } | Remove-Item -Force
@@ -131,14 +131,14 @@ if ($intDaysToKeepLogFiles -gt 0) {
         $ErrorMessage = $_.Exception.Message
         $line = $_.InvocationInfo.ScriptLineNumber
         $arrStrErrors += "Failed to purge log files older than $($intDaysToKeepLogFiles) days from $($PowerShellObject.Optional.logsDirectory) with the following error: $ErrorMessage"
-        Out-GVLogFile -LogFileObject $objDetailLogFile -WriteToLog $blnWriteToLog -LogString "$(get-date) Error: Failed to purge log files older than $($intDaysToKeepLogFiles) days from $($PowerShellObject.Optional.logsDirectory) with the following error: $ErrorMessage" -LogType "Error"
+        Out-GVLogFile -LogFileObject $objDetailLogFile -WriteToLog $blnWriteToLog -LogString "Failed to purge log files older than $($intDaysToKeepLogFiles) days from $($PowerShellObject.Optional.logsDirectory) with the following error: $ErrorMessage" -LogType "Error"
     }
 }
 
 [int] $intErrorCount = $arrStrErrors.Count
 
 if ($intErrorCount -gt 0) {
-    Out-GVLogFile -LogFileObject $objDetailLogFile -WriteToLog $blnWriteToLog -LogString "$(get-date) Info: Encountered $intErrorCount errors, sending error report email" -LogType "Error"
+    Out-GVLogFile -LogFileObject $objDetailLogFile -WriteToLog $blnWriteToLog -LogString "Encountered $intErrorCount errors, sending error report email" -LogType "Error"
     #loop through all errors and add them to email body
     foreach ($strErrorElement in $arrStrErrors) {
         $intErrorCounter = $intErrorCounter + 1
@@ -146,7 +146,7 @@ if ($intErrorCount -gt 0) {
     }
     $strEmailBody = $strEmailBody + "<br>Please see $strDetailLogFilePath on $strServerName for more details"
 
-    Out-GVLogFile -LogFileObject $objDetailLogFile -WriteToLog $blnWriteToLog -LogString "$(get-date) Info: Sending email error report via $($errorMailAppID) app on $($errorMailTenantID) tenant from $($errorMailSender) to $($errorMailRecipients) as specified in config file" -LogType "Info"
+    Out-GVLogFile -LogFileObject $objDetailLogFile -WriteToLog $blnWriteToLog -LogString "Sending email error report via $($errorMailAppID) app on $($errorMailTenantID) tenant from $($errorMailSender) to $($errorMailRecipients) as specified in config file" -LogType "Info"
     $errorEmailPasswordSecure = Get-Content $errorMailPasswordFile | ConvertTo-SecureString
     $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($errorEmailPasswordSecure)
     $errorEmailPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
@@ -155,6 +155,6 @@ if ($intErrorCount -gt 0) {
     Send-GVMailMessage -sender $errorMailSender -TenantID $errorMailTenantID -AppID $errorMailAppID -subject "$($errorMailSubjectPrefix): Encountered $($intErrorCount) errors during process" -body $strEmailBody -ContentType "HTML" -Recipient $errorMailRecipients -ClientSecret $errorEmailPassword
 }
 
-Out-GVLogFile -LogFileObject $objDetailLogFile -WriteToLog $blnWriteToLog -LogString "$(get-date) Info: Process Complete" -LogType "Info"
+Out-GVLogFile -LogFileObject $objDetailLogFile -WriteToLog $blnWriteToLog -LogString "Process Complete" -LogType "Info"
 
 $objDetailLogFile.close()
